@@ -1,0 +1,87 @@
+// DROP DOWN MENU
+function onOpen() {
+ DocumentApp.getUi()
+ .createMenu("ChatGPT")
+ .addItem("Generate Cover Letter", "createCoverLetter")
+ .addItem("Generate Answer", "blogwriting")
+ .addItem("Change Job/Company","changeJob")
+  .addToUi();
+}
+// ****END MENU****
+ 
+// FIXED VARIABLES. Your API and Model Type
+var apiKey = //Get ChatGPT api key;
+var model = "text-davinci-003"
+// ****END VARIABLES****
+ 
+// GENERATE PROMPT
+function createCoverLetter() {
+var doc = DocumentApp.getActiveDocument()
+var selectedText = doc.getSelection().getRangeElements()[0].getElement().asText().getText()
+var body = doc.getBody()
+var prompt = "create a cover letter for " + selectedText;
+temperature= 0
+maxTokens = 2060
+  const requestBody = {
+    "model": model,
+    "prompt": prompt,
+    "temperature": temperature,
+    "max_tokens": maxTokens,
+  };
+  const requestOptions = {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer "+apiKey
+    },
+    "payload": JSON.stringify(requestBody)
+  }
+const response = UrlFetchApp.fetch("https://api.openai.com/v1/completions", requestOptions);
+var responseText = response.getContentText();
+var json = JSON.parse(responseText);
+Logger.log(json['choices'][0]['text'])
+doc2 = DocumentApp.create("Cover Letter");
+body2 = doc2.getBody()
+para = body2.appendParagraph(json['choices'][0]['text'])
+}
+// ****END PROMPT****
+
+ // GENERATE PROMPT
+function blogwriting() {
+var doc = DocumentApp.getActiveDocument()
+var selectedText = doc.getSelection().getRangeElements()[0].getElement().asText().getText()
+var body = doc.getBody()
+var prompt = "write a detailed blog article for " + selectedText;
+temperature= 0
+maxTokens = 2060
+  const requestBody = {
+    "model": model,
+    "prompt": prompt,
+    "temperature": temperature,
+    "max_tokens": maxTokens,
+  };
+  const requestOptions = {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer "+apiKey
+    },
+    "payload": JSON.stringify(requestBody)
+  }
+const response = UrlFetchApp.fetch("https://api.openai.com/v1/completions", requestOptions);
+var responseText = response.getContentText();
+var json = JSON.parse(responseText);
+Logger.log(json['choices'][0]['text'])
+para = body.appendParagraph(json['choices'][0]['text'])
+}
+// ****END PROMPT****
+function changeJob(){
+  var doc = DocumentApp.getActiveDocument()
+  var ui = DocumentApp.getUi();
+  const input = ui.prompt("Current Job", ui.ButtonSet.OK_CANCEL);
+  const input2 = ui.prompt("Current Company", ui.ButtonSet.OK_CANCEL);
+  const input3 = ui.prompt("Enter Job", ui.ButtonSet.OK_CANCEL);
+  const input4 = ui.prompt("Enter Company", ui.ButtonSet.OK_CANCEL);
+  doc.replaceText(input.getResponseText(),input3.getResponseText());
+  doc.replaceText(input2.getResponseText(),input4.getResponseText());
+}
